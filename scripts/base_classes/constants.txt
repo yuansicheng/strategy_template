@@ -1,0 +1,6 @@
+# date related
+DAY_OF_YEAR = 252
+
+# risk-free rate
+RFR = 0.015
+
