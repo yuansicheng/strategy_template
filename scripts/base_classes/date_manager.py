@@ -36,14 +36,16 @@ class DateManager():
             return [date_list[i] for i in range(len(date_list)) if i % frequency==0]
         tmp = pd.DataFrame()
         tmp['date'] = date_list
-        if frequency =='weekly':
-            tmp['year'] = [d.year for d in date_list]
+        tmp['year'] = [d.year for d in date_list]
+        if frequency == 'weekly':
             tmp['week_of_year'] = [d.weekofyear for d in date_list]
             return tmp.groupby(['year', 'week_of_year']).first()['date']
-        if frequency =='monthly':
-            tmp['year'] = [d.year for d in date_list]
+        if frequency == 'monthly':
             tmp['month'] = [d.month for d in date_list]
             return tmp.groupby(['year', 'month']).first()['date']
+        if frequency == 'quarterly':
+            tmp['quarter'] = [d.month//3 for d in date_list]
+            return tmp.groupby(['year', 'quarter']).first()['date']
 
     
 

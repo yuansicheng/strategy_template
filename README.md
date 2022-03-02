@@ -96,7 +96,7 @@ def backtestOneDay(self, this_date):
     pass
 ```
 
-1. 在`scripts/run.py`中，
+5. 在`scripts/run.py`中，
    - 第1个`#`之间为策略参数，
      - `strategy_name`：策略名；
      - `generation_date_range`：策略生成期；
@@ -115,5 +115,8 @@ def backtestOneDay(self, this_date):
 
 20220226，v2.0
 - 完成重构及初步测试，需要使用更多策略测试。
+
+20220302，v2.1
+- 为`frequency`参数添加每季度更新的选项，`quarterly`。
 
 
