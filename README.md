@@ -46,7 +46,7 @@ self.weights.loc[this_date] = (1/std) / (1/std).sum()
        - 更新`asset_states`；
        - 计算交易成本并扣除。
    
-7. Evaluator：评估器，输入策略或资产净值（一个DataFrame），输出如下指标计算结果，保存在csv文件中，
+7. `Evaluator`：评估器，输入策略或资产净值（一个DataFrame），输出如下指标计算结果，保存在csv文件中，
    - 每年的收益率（不足一年的由这部分数据计算年化收益）；
    - 累计收益率=$100 \times (回测期内最后一个净值/第一个净值-1)$；
    - 年化收益率=$100 \times ((回测期内最后一个净值/回测期内第一个净值)^{DAYOFYEAR/回测天数}-1)$；
@@ -99,6 +99,7 @@ def backtestOneDay(self, this_date):
 5. 在`scripts/run.py`中，
    - 第1个`#`之间为策略参数，
      - `strategy_name`：策略名；
+     - `frequency`：更新频率，整数或`weekly`，`monthly`，`quarterly`；
      - `generation_date_range`：策略生成期；
      - `backtest_date_range`：策略回测期；
      - `result_path`：回测结果的存储路径；
