@@ -28,7 +28,7 @@ class DateManager():
         return self.all_date.loc[:date_range[1]].iloc[before_shape-buffer:].index
 
     def getUpdateDateList(self, date_range, frequency=1, missing_date=None):
-        assert isinstance(frequency, int) or frequency in ['weekly', 'monthly']
+        assert isinstance(frequency, int) or frequency in ['weekly', 'monthly', 'quarterly']
         date_list = self.getDateList(date_range)
         if missing_date:
             date_list = [d for d in date_list if d not in missing_date]
@@ -44,7 +44,7 @@ class DateManager():
             tmp['month'] = [d.month for d in date_list]
             return tmp.groupby(['year', 'month']).first()['date']
         if frequency == 'quarterly':
-            tmp['quarter'] = [d.month//3 for d in date_list]
+            tmp['quarter'] = [(d.month+1)//3 for d in date_list]
             return tmp.groupby(['year', 'quarter']).first()['date']
 
     

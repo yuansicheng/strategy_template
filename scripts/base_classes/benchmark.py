@@ -21,8 +21,8 @@ class Benchmark(Dataset):
         self.asset_dict = OrderedDict()
         self.asset_weight = OrderedDict()
 
-    def addAsset(self, asset_file, weight):
-        super().addAsset(asset_file)
+    def addAsset(self, asset_file, weight=0., transection_cost=0.):
+        super().addAsset(asset_file, transection_cost=transection_cost)
         self.asset_weight[self.getAssetName(asset_file)] = weight
 
     def getValue(self, date_list):

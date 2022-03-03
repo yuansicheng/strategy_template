@@ -16,8 +16,12 @@ def strfTime(t):
     return t.strftime("%Y%m%d")
 
 class Evaluator:
-    def __init__(self, asset_df=None, args=None) -> None:
-        self.df = asset_df
+    def __init__(self, strategy_value=None, benchmark_value = None, asset_close_df=None, args=None) -> None:
+        self.strategy_value = strategy_value
+        self.benchmark_value = benchmark_value
+        self.asset_close_df = asset_close_df
+
+        self.df = pd.concat((self.strategy_value, self.benchmark_value, self.asset_close_df), axis=1)
         self.daily_yield = (self.df / self.df.shift() - 1).dropna()
         self.args = args
 
@@ -108,10 +112,12 @@ class Evaluator:
         self.evaluation.loc['sortino比率'] = (self.evaluation.loc['年化收益率']/100-mar) / self.daily_yield.apply(getSortinoDenominator)
 
     def calculateInformationRatio(self) -> None:
-        numerator = 0.01 * self.evaluation.loc['年化收益率'].apply(lambda x: self.evaluation.loc['年化收益率'].iloc[0] - x)
-        denominator = self.daily_yield.apply(lambda x: self.daily_yield.iloc[:, 0] - x).std()
-        self.evaluation.loc['信息比率(策略相对于资产)'] = numerator / denominator
-        self.evaluation.loc['信息比率(策略相对于资产)'].iloc[0] = '--'
+        for s in self.strategy_value.columns:
+            numerator = 0.01 * self.evaluation.loc['年化收益率'].apply(lambda x: self.evaluation.loc['年化收益率'][s] - x)
+            denominator = self.daily_yield.apply(lambda x: self.daily_yield[s] - x).std()
+            row_name = '信息比率({})'.format(s)
+            self.evaluation.loc[row_name] = numerator / denominator
+            self.evaluation.loc[row_name][s] = '--'
         
 
     def evaluate(self) -> pd.DataFrame:

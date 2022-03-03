@@ -30,7 +30,7 @@ def drawValues(values, fig_name, asset_close_df=None, benchmark=None):
     plt.cla()
     plt.figure(figsize=(16,4), dpi=256)
     ax = plt.axes()
-    values.plot(ax=ax, zorder=1000, color='black', linewidth=2)
+    values.plot(ax=ax, zorder=1000, linewidth=2)
     if not benchmark is None:
         benchmark.plot(ax=ax, zorder=500, linewidth=2, style='--')
     if not asset_close_df is None:

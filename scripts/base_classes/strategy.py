@@ -110,7 +110,8 @@ class Strategy(ABC):
         self.setDataAndDf(self.args.backtest_date_range)
         transection_date = self.date_manager.getUpdateDateList(self.args.backtest_date_range, frequency=self.args.frequency, missing_date=self.missing_date)
         for i in tqdm(range(len(self.date_list)),
-                      desc='backtest'):
+                      desc='backtest', 
+                      unit='days'):
             this_date = self.date_list[i]
             # update nav
             self.updateValue(this_date)

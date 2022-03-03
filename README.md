@@ -118,6 +118,8 @@ def backtestOneDay(self, this_date):
 - 完成重构及初步测试，需要使用更多策略测试。
 
 20220302，v2.1
-- 为`frequency`参数添加每季度更新的选项，`quarterly`。
+- 为`frequency`参数添加每季度更新的选项，`quarterly`；
+- 修改`Evaluator`传入参数的逻辑，计算信息比率时为每个strategy都计算一次；
+- 修改`Strategy`回测时进度条的单位。
 
 

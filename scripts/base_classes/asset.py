@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 
 class Asset():
-    def __init__(self, asset_name, asset_file, transection_cost=0.001) -> None:
+    def __init__(self, asset_name, asset_file, transection_cost=0.) -> None:
         self.asset_name = asset_name
         self.asset_file = asset_file
         self.transection_cost = transection_cost
@@ -21,9 +21,19 @@ class Asset():
             df = pd.read_csv(self.asset_file)
         elif self.asset_file.endswith('.xls') or self.asset_file.endswith('.xlsx'):
             df = pd.read_excel(self.asset_file)
-        df.index = pd.to_datetime(df['date'])
-        df.drop(columns=['date'])
+        date_label = self.findLabel(df.columns, ['date', '日期'])
+        df.index = pd.to_datetime(df[date_label])
+        df.drop(columns=[date_label])
         return df
+
+    def findLabel(self, columns, labels):
+        # find which column contains target label
+        labels = [label.lower() for label in labels]
+        for column in columns:
+            if column.lower() in labels:
+                return column
+        logging.error('Can not find a colomn in asset {} with label {}'.format(self.asset_name, labels))
+        sys.exit(1)
 
     def getData(self, date_list):
         all_data = self.loadAllData()
@@ -33,6 +43,8 @@ class Asset():
         exist_date_list = [d for d in all_data.index if d in date_list]
         df.loc[exist_date_list] = all_data.loc[exist_date_list]
         # if miss the first value, then break
+        close_label = self.findLabel(df.columns, ['CLOSE', '收盘价'])
+        df['CLOSE'] = df[close_label]
         assert not np.isnan(df['CLOSE'].iloc[0])
         missing_date = set(df[df['CLOSE'].isnull().values==True].index)
         df.fillna(method='ffill', inplace=True)
