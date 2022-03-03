@@ -120,6 +120,7 @@ def backtestOneDay(self, this_date):
 20220302，v2.1
 - 为`frequency`参数添加每季度更新的选项，`quarterly`；
 - 修改`Evaluator`传入参数的逻辑，计算信息比率时为每个strategy都计算一次；
-- 修改`Strategy`回测时进度条的单位。
+- 修改`Strategy`回测时进度条的单位；
+- 使Asset支持不同的关键字字段，比如`日期`和`收盘价`；
 
 
