@@ -44,7 +44,7 @@ class DateManager():
             tmp['month'] = [d.month for d in date_list]
             return tmp.groupby(['year', 'month']).first()['date']
         if frequency == 'quarterly':
-            tmp['quarter'] = [(d.month+1)//3 for d in date_list]
+            tmp['quarter'] = [(d.month-1)//3 for d in date_list]
             return tmp.groupby(['year', 'quarter']).first()['date']
 
     
