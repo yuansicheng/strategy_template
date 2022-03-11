@@ -108,7 +108,8 @@ class Strategy(ABC):
         # then do backtest
         logging.info('backtesting')
         self.setDataAndDf(self.args.backtest_date_range)
-        transection_date = self.date_manager.getUpdateDateList(self.args.backtest_date_range, frequency=self.args.frequency, missing_date=self.missing_date)
+        self.transection_date = self.date_manager.getUpdateDateList(self.args.backtest_date_range, frequency=self.args.frequency, missing_date=self.missing_date).values
+        self.rebalance_date = self.date_manager.getUpdateDateList(self.args.backtest_date_range, frequency=self.args.rebalance_frequency, missing_date=self.missing_date).values
         for i in tqdm(range(len(self.date_list)),
                       desc='backtest', 
                       unit='days'):
@@ -116,11 +117,12 @@ class Strategy(ABC):
             # update nav
             self.updateValue(this_date)
 
-            if this_date in transection_date.values and this_date not in self.missing_date:
-                # update weights
-                self.backtestOneDay(this_date)
+            self.backtestOneDay(this_date)
+
+            if self.weights.shape[0] and self.weights.index[-1] == this_date:
                 self.updateAssetState()
                 self.calculateTransectionCost(this_date)
+
         self.asset_close_df = self.asset_close_df.loc[self.date_list]
 
  

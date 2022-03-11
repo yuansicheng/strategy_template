@@ -11,14 +11,17 @@ import pandas as pd
 import numpy as np
 
 class Asset():
-    def __init__(self, asset_name, asset_file, transection_cost=0.) -> None:
+    def __init__(self, asset_name, asset_file, transection_cost=0., weight_range=[0., 1.]) -> None:
         self.asset_name = asset_name
         self.asset_file = asset_file
         self.transection_cost = transection_cost
 
+        assert len(weight_range) == 2
+        self.weight_range = weight_range
+
     def loadAllData(self):
         if self.asset_file.endswith('.csv'):
-            df = pd.read_csv(self.asset_file)
+            df = pd.read_csv(self.asset_file, encoding='utf-8-sig')
         elif self.asset_file.endswith('.xls') or self.asset_file.endswith('.xlsx'):
             df = pd.read_excel(self.asset_file)
         date_label = self.findLabel(df.columns, ['date', '日期'])

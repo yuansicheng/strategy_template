@@ -21,7 +21,10 @@ self.weights.loc[this_date] = (1/std) / (1/std).sum()
    - `addAsset`函数通过传入资产数据文件和交易成本，产生一个`Asset`实体并存入`asset_dict`，其中资产名从文件中解析，如果资产已经添加进`asset_dict`，不再重复添加；
    - `getTransectionCost`函数用于获取`asset_dict`中资产的交易成本，常用于更新权重后净值的计算；
    - `getData`函数通过调用每个资产的`getData`方法，获取特定日期序列的原始数据`raw_data`字典和缺失收盘价数据（`CLOSE`）的日期`missing_date`集合；
-   - `dict2CloseDf`函数提取`raw_data`字典中的收盘价数据组成一个`DataFrame`，并除以第一个净值。
+   - `dict2CloseDf`函数提取`raw_data`字典中的收盘价数据组成一个`DataFrame`，并除以第一个净值；
+   - 分组相关的功能，
+     - `Dataset`类支持用户设置任意层的分组，方便后续rebalance操作；
+     - 分组信息以tree的数据格式存放，`self.group`指向根节点即root节点；
    
 3. `Benchmark`：业绩基准，继承自`Dataset`，本质上benchmark是一个中间不调仓的策略，因此只需要在第一天扣除交易成本，后续净值可通过矩阵计算得到，即`getValue`函数。
    
@@ -104,12 +107,15 @@ def backtestOneDay(self, this_date):
      - `backtest_date_range`：策略回测期；
      - `result_path`：回测结果的存储路径；
      - `buffer`：读取数据的缓冲区大小。
-   - 第2个`#`之间为策略包含的资产，可以精确指定或使用通配符模糊指定；
+   - 第2个`#`之间为策略包含的资产，可以精确指定或使用通配符模糊指定，依次
+     - 初始化数据集实体；
+     - 设置分组；
+     - 为分组添加资产；
    - 第3个`#`之间为benchmark，可以同时设置多个benchmark；
    - 初始化`DateManager`，使用`getValue`方法获取benchmark的净值；
    - 初始化策略子类并运行；
    - 权重和净值分别保存并画图；
-   - 拼接策略、benchmark、资产的净值，使用`Evaluator`评估性能并保存。
+   - 使用`Evaluator`评估性能并保存。
 
 
 ## 更新日志
@@ -122,5 +128,10 @@ def backtestOneDay(self, this_date):
 - 修改`Evaluator`传入参数的逻辑，计算信息比率时为每个strategy都计算一次；
 - 修改`Strategy`回测时进度条的单位；
 - 使Asset支持不同的关键字字段，比如`日期`和`收盘价`；
+
+20220311，v2.2
+- 增加`Dataset`类为资产分组的功能；
+- 增加`Asset`类的权重区间属性`weight_range`；
+- 修改判断是否需要调整权重的逻辑，之前版本用户无需判断当天是否为交易日，新版本改为需要用户自行判断，增加框架的适用性，用户可以根据需求实现更复杂的触发条件。
 
 

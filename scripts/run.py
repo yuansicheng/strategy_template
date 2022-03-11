@@ -37,7 +37,8 @@ arg_manager.loadArgsFromFile('base_classes/constants.txt')
 args = arg_manager.args
 # args
 args.strategy_name = 'rp'
-args.frequency = 'weekly'
+args.frequency = 'monthly'
+args.rebalance_frequency = 'weekly'
 args.generation_date_range = []
 args.backtest_date_range = [datetime(2010, 1, 1), datetime(2020, 12, 31)]
 args.result_path = '../result'
@@ -47,14 +48,24 @@ args.buffer = args.constants.DAY_OF_YEAR
 ####################################################
 # set asset
 dataset = Dataset()
+# set weight constraint for 'root' group (all assets)
+dataset.group.weight_range = [0., 1.]
 # Precise assignment
-dataset.addAsset('../data/中债-国债总财富(总值)指数.csv', transection_cost=0.001)
-dataset.addAsset('../data/沪深300指数(全收益).csv', transection_cost=0.002)
+dataset.addGroup(group='bonds', weight_range=[0.3, 0.9])
+dataset.addAsset('../data/中债-国债总财富(总值)指数.csv', transection_cost=0.001, group='bonds', weight_range=[0., 0.9])
+dataset.addAsset('../data/中债-信用债总财富(总值)指数.csv', transection_cost=0.001, group='bonds', weight_range=[0., 0.9])
+
+dataset.addGroup(group='stocks', weight_range=[0.1, 0.6])
+dataset.addAsset('../data/沪深300指数(全收益).csv', transection_cost=0.002, group='stocks', weight_range=[0., 0.6])
+dataset.addAsset('../data/上证50(全收益).csv', transection_cost=0.002, group='stocks', weight_range=[0., 0.6])
 
 # Fuzzy assignment
 files = glob('../data/*黄金*')
 for asset_file in files:
-    dataset.addAsset(asset_file, transection_cost=0.003)
+    dataset.addAsset(asset_file, transection_cost=0.003, weight_range=[0.1, 0.5])
+
+# print current dataset
+dataset.printGroup(dataset.group)
 ####################################################
 ####################################################
 # set benchmark
@@ -82,9 +93,8 @@ drawWeights(rp.weights, os.path.join(args.result_path, 'weights.png'))
 rp.values.to_csv(os.path.join(args.result_path, 'values.csv'))
 drawValues(rp.values, os.path.join(args.result_path, 'values.png'), asset_close_df=rp.asset_close_df, benchmark=benchmark_value)
 
-# df for evaluator
-df = pd.concat((rp.values, benchmark_value, rp.asset_close_df), axis=1)
-evaluation = Evaluator(asset_df=df, args=args.constants).evaluate()
+
+evaluation = Evaluator(strategy_value=rp.values, benchmark_value = benchmark_value, asset_close_df=rp.asset_close_df, args=args.constants).evaluate()
 # set encoding='utf_8_sig' to show Chinese
 evaluation.to_csv(os.path.join(args.result_path, 'evaluation.csv'), encoding='utf_8_sig')
 

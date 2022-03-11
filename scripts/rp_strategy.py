@@ -22,7 +22,15 @@ class RP(Strategy):
         pass
 
     def backtestOneDay(self, this_date):
-        std = self.asset_daily_yield_df.loc[:this_date].iloc[-self.args.constants.DAY_OF_YEAR:].std()
-        self.weights.loc[this_date] = (1/std) / (1/std).sum()
+        if this_date in self.missing_date:
+            return
+        transection_flag = False
+        if this_date in self.transection_date:
+            std = self.asset_daily_yield_df.loc[:this_date].iloc[-self.args.constants.DAY_OF_YEAR:].std()
+            self.weights.loc[this_date] = (1/std) / (1/std).sum()
+            transection_flag = True
+        if transection_flag or this_date in self.rebalance_date:
+            # do rebalance
+            pass
 
 
