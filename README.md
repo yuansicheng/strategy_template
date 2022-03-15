@@ -1,7 +1,7 @@
 # 轻量级策略回测项目模板
 
 *苑思成，20220226*  
-*https://github.com/yuansicheng/strategy_templete/tree/master*
+*https://github.com/yuansicheng/strategy_template/tree/master*
 
 ## 模板用途
 在实现策略及回测时，通常包含大量重复的工作，比如载入数据、画图等，耗费大量的时间，本项目将这些重复的工作定义在基类中，用户实现一个新策略时，只需要实现策略的核心代码即可。  
@@ -133,5 +133,11 @@ def backtestOneDay(self, this_date):
 - 增加`Dataset`类为资产分组的功能；
 - 增加`Asset`类的权重区间属性`weight_range`；
 - 修改判断是否需要调整权重的逻辑，之前版本用户无需判断当天是否为交易日，新版本改为需要用户自行判断，增加框架的适用性，用户可以根据需求实现更复杂的触发条件。
+
+20220315，v2.3
+- 修复bug：计算交易成本时由于一个Serial没加`.values`导致结果为nan；
+- 修复bug：计算每个资产收益时的除0错误；
+- 为框架中的所有assert添加提示语句；
+- 画权重图时显示调仓时间和再平衡时间。
 
 

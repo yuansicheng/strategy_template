@@ -13,6 +13,8 @@ import pandas as pd
 from tqdm import tqdm
 import numpy as np
 
+from collections import defaultdict
+
 
 class Strategy(ABC):
     def __init__(self,
@@ -23,13 +25,13 @@ class Strategy(ABC):
                  ) -> None:
         super().__init__()
 
-        assert dataset
+        assert dataset, 'dataset is None'
         self.dataset = dataset
 
-        assert date_manager
+        assert date_manager, 'date_manager is None'
         self.date_manager = date_manager
 
-        assert args
+        assert args, 'args is None'
         self.args = args
 
         self.asset_list = list(self.dataset.asset_dict.keys())
@@ -39,6 +41,7 @@ class Strategy(ABC):
         self.values = pd.DataFrame(columns=[self.args.strategy_name])
         self.asset_states = pd.DataFrame(columns=self.asset_list, index=['position', 'cost', 'return'])
         self.asset_states.iloc[:,:] = 0
+        self.marked_date = defaultdict(list)
 
     @abstractmethod
     def generate(self, *args, **kwargs):
@@ -52,7 +55,7 @@ class Strategy(ABC):
     def backtestOneDay(self, this_date, *args, **kwargs):
         pass
 
-    def updateValue(self, d):
+    def updateDaily(self, d):
         if not self.weights.shape[0]:
             self.values.loc[d] = 1
         else:
@@ -60,11 +63,14 @@ class Strategy(ABC):
 
             # update asset_states
             self.asset_states.loc['position'] = self.asset_states.loc['position'] * self.asset_daily_yield_df.loc[d]
-            self.asset_states.loc['return'] = self.asset_states.loc['position'] / self.asset_states.loc['cost']
+            self.asset_states.loc['return'] = self.asset_states.loc['position'] / (self.asset_states.loc['cost'] + 1e-16)
+           
+            self.weights.loc[d] = self.asset_states.loc['position'] / self.values.loc[d].values[0]
+            
 
-    def updateAssetState(self):
+    def updateAfterTransection(self):
         # update asset states 
-        target_position = self.weights.iloc[-1] * self.values.iloc[-1]
+        target_position = self.weights.iloc[-1] * self.values.iloc[-1].values
         for asset in self.asset_list:
             if target_position[asset] < self.asset_states.loc['position', asset]:
                 self.asset_states.loc['cost', asset] = self.asset_states.loc['cost', asset] * target_position[asset] / self.asset_states.loc['position', asset]
@@ -108,20 +114,22 @@ class Strategy(ABC):
         # then do backtest
         logging.info('backtesting')
         self.setDataAndDf(self.args.backtest_date_range)
-        self.transection_date = self.date_manager.getUpdateDateList(self.args.backtest_date_range, frequency=self.args.frequency, missing_date=self.missing_date).values
-        self.rebalance_date = self.date_manager.getUpdateDateList(self.args.backtest_date_range, frequency=self.args.rebalance_frequency, missing_date=self.missing_date).values
+        self.transection_date = self.date_manager.getUpdateDateList(self.args.backtest_date_range, frequency=self.args.frequency, missing_date=self.missing_date)
+        self.rebalance_date = self.date_manager.getUpdateDateList(self.args.backtest_date_range, frequency=self.args.rebalance_frequency, missing_date=self.missing_date)
         for i in tqdm(range(len(self.date_list)),
                       desc='backtest', 
                       unit='days'):
             this_date = self.date_list[i]
             # update nav
-            self.updateValue(this_date)
+            self.updateDaily(this_date)
 
+            if this_date in self.missing_date:
+                return
             self.backtestOneDay(this_date)
 
-            if self.weights.shape[0] and self.weights.index[-1] == this_date:
-                self.updateAssetState()
+            if this_date in self.marked_date['update']or this_date in self.marked_date['rebalance']:
                 self.calculateTransectionCost(this_date)
+                self.updateAfterTransection()
 
         self.asset_close_df = self.asset_close_df.loc[self.date_list]
 

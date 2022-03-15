@@ -53,13 +53,13 @@ class Evaluator:
         # print( self.evaluation.loc['年化波动率'])
 
     def calculateSharpeRatio(self) -> None:
-        assert '年化收益率' in self.evaluation.index
-        assert '年化波动率' in self.evaluation.index
+        assert '年化收益率' in self.evaluation.index, '年化收益率 must be calculated before sharp ratio'
+        assert '年化波动率' in self.evaluation.index, '年化波动率 must be calculated before sharp ratio'
         self.evaluation.loc['sharp比率'] = (self.evaluation.loc['年化收益率'] - self.args.RFR*100) / self.evaluation.loc['年化波动率']
 
     def calculateCalmarRatio(self) -> None:
-        assert '年化收益率' in self.evaluation.index
-        assert '最大回撤' in self.evaluation.index
+        assert '年化收益率' in self.evaluation.index, '年化收益率 must be calculated before calmar ratio'
+        assert '最大回撤' in self.evaluation.index, '最大回撤 must be calculated before calmar ratio'
         self.evaluation.loc['calmar比率'] = (self.evaluation.loc['年化收益率'] - self.args.RFR*100) / self.evaluation.loc['最大回撤']
 
     def calculateMaxLoss(self) -> None:

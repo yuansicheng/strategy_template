@@ -12,13 +12,17 @@ plt.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus'] = False
 plt.set_loglevel("info") 
 
-def drawWeights(weights, fig_name):
+def drawWeights(weights, marked_date, fig_name):
     # draw weights
     plt.cla()
     plt.figure(figsize=(16,4), dpi=256)
     ax = plt.axes()
     weights.plot.area(ax=ax)
+    for k,v in marked_date.items():
+        zorder = 100 if k=='update' else 10
+        plt.scatter(v, [weights.sum(axis=1).max()+0.05]*len(v), marker='+', zorder=zorder, label=k)
     plt.legend(loc=2, bbox_to_anchor=(1.05,1.0),borderaxespad = 0.)
+    plt.ylim(0, weights.sum(axis=1).max()+0.1)
     plt.title('Historical Weights')
     plt.tight_layout()
     plt.savefig(fig_name)

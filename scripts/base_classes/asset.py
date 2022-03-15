@@ -16,7 +16,7 @@ class Asset():
         self.asset_file = asset_file
         self.transection_cost = transection_cost
 
-        assert len(weight_range) == 2
+        assert len(weight_range) == 2, 'len(weight_range) must be 2'
         self.weight_range = weight_range
 
     def loadAllData(self):
@@ -40,7 +40,7 @@ class Asset():
 
     def getData(self, date_list):
         all_data = self.loadAllData()
-        assert date_list[-1] < all_data.index[-1]
+        assert date_list[-1] < all_data.index[-1], 'date_list[-1] < all_data.index[-1]'
         df = pd.DataFrame(index=date_list, columns=all_data.columns)
         df.iloc[:,:] = np.nan
         exist_date_list = [d for d in all_data.index if d in date_list]
@@ -48,7 +48,7 @@ class Asset():
         # if miss the first value, then break
         close_label = self.findLabel(df.columns, ['CLOSE', '收盘价'])
         df['CLOSE'] = df[close_label]
-        assert not np.isnan(df['CLOSE'].iloc[0])
+        assert not np.isnan(df['CLOSE'].iloc[0]), 'First close data must not be empty'
         missing_date = set(df[df['CLOSE'].isnull().values==True].index)
         df.fillna(method='ffill', inplace=True)
 

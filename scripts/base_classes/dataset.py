@@ -19,7 +19,7 @@ class Group():
         self.children = OrderedDict()
         self.assets = OrderedDict()
 
-        assert len(weight_range) == 2
+        assert len(weight_range) == 2, 'len(weight_range) must be 2'
         self.weight_range = weight_range
 
 class Dataset():
@@ -52,7 +52,7 @@ class Dataset():
             return self.group
         tmp = self.group
         for name in group_split:
-            assert name in tmp.children
+            assert name in tmp.children, 'group {} have not registered'.format(group)
             tmp = tmp.children[name]
         return tmp
 
@@ -72,7 +72,7 @@ class Dataset():
 
 
     def addAsset(self, asset_file, transection_cost=0., group='', weight_range=[0., 1.]):
-        assert os.path.exists(asset_file)
+        assert os.path.exists(asset_file), 'asset_file {} do not exists'.format(asset_file)
 
         asset_name = self.getAssetName(asset_file)
         if asset_name in list(self.asset_dict.keys()):

@@ -37,8 +37,8 @@ arg_manager.loadArgsFromFile('base_classes/constants.txt')
 args = arg_manager.args
 # args
 args.strategy_name = 'rp'
-args.frequency = 'monthly'
-args.rebalance_frequency = 'weekly'
+args.frequency = 'quarterly'
+args.rebalance_frequency = 'monthly'
 args.generation_date_range = []
 args.backtest_date_range = [datetime(2010, 1, 1), datetime(2020, 12, 31)]
 args.result_path = '../result'
@@ -88,7 +88,7 @@ rp.run()
 
 # save and draw
 rp.weights.to_csv(os.path.join(args.result_path, 'weights.csv'))
-drawWeights(rp.weights, os.path.join(args.result_path, 'weights.png'))
+drawWeights(rp.weights, rp.marked_date, os.path.join(args.result_path, 'weights.png'))
 
 rp.values.to_csv(os.path.join(args.result_path, 'values.csv'))
 drawValues(rp.values, os.path.join(args.result_path, 'values.png'), asset_close_df=rp.asset_close_df, benchmark=benchmark_value)

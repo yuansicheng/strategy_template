@@ -27,7 +27,7 @@ class Benchmark(Dataset):
 
     def getValue(self, date_list):
         weights = np.array(list(self.asset_weight.values()))
-        assert weights.sum() == 1
+        assert weights.sum() == 1, 'weight sum of all asset must be 1'
         raw_data, _ = self.getData(date_list)
 
         transection_cost = self.getTransectionCost()
