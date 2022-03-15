@@ -73,7 +73,7 @@ class Strategy(ABC):
         target_position = self.weights.iloc[-1] * self.values.iloc[-1].values
         for asset in self.asset_list:
             if target_position[asset] < self.asset_states.loc['position', asset]:
-                self.asset_states.loc['cost', asset] = self.asset_states.loc['cost', asset] * target_position[asset] / self.asset_states.loc['position', asset]
+                self.asset_states.loc['cost', asset] = self.asset_states.loc['cost', asset] * target_position[asset] / (self.asset_states.loc['position', asset] + 1e-16)
             else:
                 self.asset_states.loc['cost', asset] = self.asset_states.loc['cost', asset] + target_position[asset] - self.asset_states.loc['position', asset]
         self.asset_states.loc['position'] = target_position
