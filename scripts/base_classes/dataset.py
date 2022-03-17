@@ -21,6 +21,12 @@ class Group():
 
         assert len(weight_range) == 2, 'len(weight_range) must be 2'
         self.weight_range = weight_range
+        
+    def getAllLeafAsset(self):
+        all_leaf = list(self.assets.keys())
+        for g in self.children.values():
+            all_leaf += g.getAllLeafAsset()
+        return all_leaf
 
 class Dataset():
     def __init__(self) -> None:
